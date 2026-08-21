@@ -1,0 +1,2 @@
+import {describe,it,expect} from "vitest";import {rateLimit} from "@/lib/security/rate-limit";
+describe("security primitives",()=>{it("rate limiter blocks after threshold",async()=>{const key=`test-${crypto.randomUUID()}`;for(let i=0;i<3;i++)await rateLimit(key,2,10000);const r=await rateLimit(key,2,10000);expect(r.allowed).toBe(false)});it("tenant storage key is namespaced",()=>{const storeId="storeA";const key=`stores/${storeId}/files/${crypto.randomUUID()}`;expect(key.startsWith("stores/storeA/files/")).toBe(true)})});

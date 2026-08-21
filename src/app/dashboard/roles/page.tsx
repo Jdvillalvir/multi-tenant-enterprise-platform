@@ -1,0 +1,1 @@
+import {requirePermission} from "@/lib/permissions/permissions";import RolesClient from "./RolesClient";export default async function Page(){await requirePermission("roles.view");return <RolesClient/>}

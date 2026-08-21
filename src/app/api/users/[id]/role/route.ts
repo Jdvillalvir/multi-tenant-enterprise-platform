@@ -1,0 +1,7 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { prisma } from "@/lib/db/prisma";
+import { apiAuth, errorResponse } from "@/lib/services/api";
+import { audit } from "@/lib/audit/logger";
+const schema=z.object({roleId:z.string().cuid()});
+export async function PATCH(request:NextRequest,{params}:{params:Promise<{id:string}>}){const a=await apiAuth("users.update",request);if("response" in a)return a.response;const me=a.user;const {id}=await params;try{const {roleId}=schema.parse(await request.json());const target=await prisma.user.findFirst({where:{id,storeId:me.storeId,deletedAt:null}});if(!target)return NextResponse.json({error:"No encontrado"},{status:404});const role=await prisma.role.findFirst({where:{id:roleId,OR:[{storeId:me.storeId},{scope:"GLOBAL"}]}});if(!role)return NextResponse.json({error:"Rol inválido"},{status:400});if(role.scope==="GLOBAL"&&!me.roles.some(r=>r.role.name==="SUPER_ADMIN"&&r.role.scope==="GLOBAL"))return NextResponse.json({error:"No autorizado"},{status:403});if(role.name==="SUPER_ADMIN"&&!me.roles.some(r=>r.role.name==="SUPER_ADMIN"))return NextResponse.json({error:"No autorizado"},{status:403});await prisma.$transaction([prisma.userRole.deleteMany({where:{userId:id}}),prisma.userRole.create({data:{userId:id,roleId}}),prisma.user.update({where:{id},data:{sessionVersion:{increment:1}}})]);await audit({action:"ROLE_CHANGED",entity:"User",entityId:id,storeId:me.storeId,userId:me.id,metadata:{roleId}});return NextResponse.json({ok:true});}catch(e){return errorResponse(e)}}

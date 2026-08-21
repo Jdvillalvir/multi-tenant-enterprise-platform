@@ -1,0 +1,2 @@
+import {NextRequest,NextResponse} from "next/server";import {auth,signOut} from "@/auth";import {sameOrigin} from "@/lib/security/request";import {audit} from "@/lib/audit/logger";
+export async function POST(request:NextRequest){if(!sameOrigin(request))return NextResponse.json({error:"Origen no permitido"},{status:403});const session=await auth();if(session?.user?.id)await audit({action:"LOGOUT",entity:"User",entityId:session.user.id,userId:session.user.id,storeId:session.user.storeId});await signOut({redirect:false});return NextResponse.json({ok:true});}

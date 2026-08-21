@@ -1,0 +1,2 @@
+import {NextRequest,NextResponse} from "next/server";import {prisma} from "@/lib/db/prisma";import {apiAuth,errorResponse} from "@/lib/services/api";
+export async function GET(request:NextRequest){const a=await apiAuth("roles.view",request);if("response" in a)return a.response;try{return NextResponse.json({items:await prisma.permission.findMany({orderBy:{key:"asc"}})});}catch(e){return errorResponse(e)}}

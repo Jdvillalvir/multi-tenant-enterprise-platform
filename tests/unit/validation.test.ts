@@ -1,0 +1,2 @@
+import {describe,it,expect} from "vitest";import {passwordSchema,recordSchema} from "@/lib/validation/schemas";
+describe("validation",()=>{it("rejects weak passwords",()=>expect(()=>passwordSchema.parse("password")).toThrow());it("accepts valid records",()=>expect(recordSchema.parse({title:"Venta",numericValue:12}).title).toBe("Venta"));it("limits title",()=>expect(()=>recordSchema.parse({title:"x".repeat(201)})).toThrow())});
