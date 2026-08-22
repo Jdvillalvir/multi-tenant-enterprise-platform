@@ -24,7 +24,7 @@ jobs:
       SEED_ADMIN_PASSWORD: TestPassword123!secure
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: {node-version: 22, cache: npm}
       - run: npm install --package-lock-only --ignore-scripts
       - run: npm ci
